@@ -3,7 +3,7 @@
 TemperatureClassifier::TemperatureClassifier() {
     // Map the model into a usable data structure. This doesn't involve any
     // copying or parsing, it's a very lightweight operation.
-    model_ = tflite::GetModel(tflite_model);
+    model_ = tflite::GetModel(__model_temp_model_tflite);
     if (model_->version() != TFLITE_SCHEMA_VERSION) {
         printf("Model provided is schema version %d not equal to supported "
                "version %d.\n", model_->version(), TFLITE_SCHEMA_VERSION);
@@ -11,19 +11,24 @@ TemperatureClassifier::TemperatureClassifier() {
     }
 
     // Operações necessárias no modelo
-    tflite::MicroMutableOpResolver<4>*resolver = new tflite::MicroMutableOpResolver<4>();
+    tflite::MicroMutableOpResolver<6>*resolver = new tflite::MicroMutableOpResolver<6>();
 
     resolver->AddFullyConnected();
     resolver->AddReshape();
     resolver->AddSoftmax();
     resolver->AddLogistic();
-    /*
     resolver->AddMul();
     resolver->AddAdd();
     
-    resolver->AddQuantize();
-    resolver->AddDequantize();
+    /*  
+    outras operações:  
+        resolver->AddQuantize();
+        resolver->AddDequantize();
+    
+    para coletar todas as operações disponíveis:
+        static tflite::AllOpsResolver resolver;
     */
+    
 
     // Build an interpreter to run the model
     interpreter_ = new tflite::MicroInterpreter(
@@ -50,9 +55,10 @@ TemperatureClassifier::TemperatureClassifier() {
 
 
 
-int TemperatureClassifier::predict(float temperature){
+int TemperatureClassifier::predict(float* temperature){
     // Normalização
-    float norm_temp = (temperature - norm_mean_) / norm_std_;
+    
+    float norm_temp = (*temperature - norm_mean_) / norm_std_;
 
     // Input
     input_->data.f[0] = norm_temp;

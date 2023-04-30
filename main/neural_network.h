@@ -16,7 +16,7 @@
 class TemperatureClassifier {
  public:
     TemperatureClassifier();
-    int predict(float temperature);
+    int predict(float* temperature);
 
  private:
     const tflite::Model* model_;
