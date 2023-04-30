@@ -5,5 +5,5 @@
 
 idf_component_register(
     SRCS main.cc neural_network.cc model.cc dht11.cc
-    PRIV_REQUIRES tflite-lib spi_flash
+    PRIV_REQUIRES tflite-lib
     INCLUDE_DIRS ".")
