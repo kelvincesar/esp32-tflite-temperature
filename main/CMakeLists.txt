@@ -4,6 +4,6 @@
 #
 
 idf_component_register(
-    SRCS main.cc main_functions.cc output_handler.cc model.cc
+    SRCS main.cc neural_network.cc output_handler.cc model.cc
     PRIV_REQUIRES tflite-lib spi_flash
     INCLUDE_DIRS ".")

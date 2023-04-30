@@ -13,11 +13,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "main_functions.h"
+//#include "main_functions.h"
+#include "neural_network.h"
 
 extern "C" void app_main(void) {
-  setup();
-  while (true) {
-    loop();
+  // Inicializa o modelo
+  TemperatureClassifier* temp_model = new TemperatureClassifier();
+
+  // Testa alguns valores de temperatura com o modelo
+  float temperatures[] = {-1, 0, 5, 10, 15, 20, 25, 30, 35};
+
+  for (int i = 0; i < 9; i++){
+    int prediction = temp_model->predict(temperatures[i]);
+    printf("Temperature: %f, Prediction: %d\n", temperatures[i], prediction);
   }
+
 }
+
+

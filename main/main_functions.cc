@@ -26,19 +26,19 @@ limitations under the License.
 
 // Globals, used for compatibility with Arduino-style sketches.
 namespace {
-const tflite::Model* model = nullptr;
-tflite::MicroInterpreter* interpreter = nullptr;
-TfLiteTensor* input = nullptr;
-TfLiteTensor* output = nullptr;
+  const tflite::Model* model = nullptr;
+  tflite::MicroInterpreter* interpreter = nullptr;
+  TfLiteTensor* input = nullptr;
+  TfLiteTensor* output = nullptr;
 
-// Número de classes na saída do modelo
-const int kNumClasses = 3;
-const float norm_mean = 20.07228311;
-const float norm_std = 4.49116319;
+  // Número de classes na saída do modelo
+  const int kNumClasses = 3;
+  const float norm_mean = 20.07228311;
+  const float norm_std = 4.49116319;
 
 
-constexpr int kTensorArenaSize = 2 * 1024;
-uint8_t tensor_arena[kTensorArenaSize];
+  constexpr int kTensorArenaSize = 2 * 1024;
+  uint8_t tensor_arena[kTensorArenaSize];
 
 }  // namespace
 
@@ -46,7 +46,7 @@ uint8_t tensor_arena[kTensorArenaSize];
 void setup() {
   // Map the model into a usable data structure. This doesn't involve any
   // copying or parsing, it's a very lightweight operation.
-  model = tflite::GetModel(temp_model_tflite);
+  model = tflite::GetModel(tflite_model);
   if (model->version() != TFLITE_SCHEMA_VERSION) {
     MicroPrintf("Model provided is schema version %d not equal to supported "
                 "version %d.", model->version(), TFLITE_SCHEMA_VERSION);
