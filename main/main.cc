@@ -15,6 +15,11 @@ limitations under the License.
 
 //#include "main_functions.h"
 #include "neural_network.h"
+#include "dht11.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/gpio.h"
+#include "esp_sleep.h"
 
 extern "C" void app_main(void) {
   // Inicializa o modelo
@@ -28,6 +33,17 @@ extern "C" void app_main(void) {
     printf("Temperature: %f, Prediction: %d\n", temperatures[i], prediction);
   }
 
+
+  DHT11_init(GPIO_NUM_25);
+
+  while(1) {
+      printf("Temperature is %d \n", DHT11_read().temperature);
+      printf("Humidity is %d\n", DHT11_read().humidity);
+      printf("Status code is %d\n", DHT11_read().status);
+
+      // 5 seconds delay
+      vTaskDelay(5000 / portTICK_PERIOD_MS);
+  }
 }
 
 

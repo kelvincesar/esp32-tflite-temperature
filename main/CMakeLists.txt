@@ -4,7 +4,6 @@
 #
 
 idf_component_register(
-    SRCS main.cc neural_network.cc output_handler.cc model.cc
+    SRCS main.cc neural_network.cc model.cc dht11.cc
     PRIV_REQUIRES tflite-lib spi_flash
-    REQUIRES Adafruit_DHT
     INCLUDE_DIRS ".")

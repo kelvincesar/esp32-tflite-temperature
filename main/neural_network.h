@@ -12,7 +12,6 @@
 
 // tensorflow model
 #include "model.h"
-#include "output_handler.h"
 
 class TemperatureClassifier {
  public:
