@@ -12,12 +12,14 @@
 
 // Modelo que será carregado
 #include "model.h"
+//#include "model_q.h"
 
 // Classe para classificação do modelo de temperatura
 class TemperatureClassifier {
    public:
       TemperatureClassifier();
       int predict(float* temperature);
+      int predict_quantized(float* temperature);
 
    private:
       const tflite::Model* model_;

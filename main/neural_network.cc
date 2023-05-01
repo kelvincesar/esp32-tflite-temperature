@@ -71,3 +71,39 @@ int TemperatureClassifier::predict(float* temperature){
     // Retorna o maior index, que no caso é a própria classe
     return max_index;
 }
+
+int TemperatureClassifier::predict_quantized(float* temperature){
+    // Get the input quantization parameters
+    float input_scale = input_->params.scale;
+    int input_zero_point = input_->params.zero_point;
+
+    // Get the output quantization parameters
+    float output_scale = output_->params.scale;
+    int output_zero_point = output_->params.zero_point;
+
+    // Normalização através da equação Z-Score
+    float norm_temp = (*temperature - norm_mean_) / norm_std_;
+
+    // Transfere o valor normalizado para o tensor de entrada
+    input_->data.int8[0] = norm_temp / input_scale + input_zero_point;
+
+    // Executa a inferência do modelo
+    TfLiteStatus invoke_status = interpreter_->Invoke();
+    if (invoke_status != kTfLiteOk) {
+        printf("Invoke() falhou.\n");
+        return -1;
+    }
+
+    // Iteração pelos valores de saída para encontrar o maior valor
+    int max_index = 0;
+
+    float value = (output_->data.int8[0] - output_zero_point) * output_scale;
+    for (int i = 1; i < number_of_classes_; i++) {
+        if ((output_->data.int8[i] - output_zero_point) * output_scale > value) {
+            max_index = i;
+        }
+    }
+
+    // Retorna o maior index, que no caso é a própria classe
+    return max_index;
+}

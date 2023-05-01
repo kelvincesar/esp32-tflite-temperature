@@ -8,18 +8,6 @@
  * 
  * - Trabalho 01 para exploração e testes com ferramentas de TinyML
  * 
- * Neste trabalho, foi treinado um modelo de classificação de temperatura com 
- * dados da cidade de Jaraguá do Sul. As temperaturas foram classificadas em:
- * - Frio (abaixo de 20 graus)
- * - Agradável (entre 20 e 25 graus)
- * - Quente (acima de 25 graus)
- * 
- * O modelo foi treinado utilizando a biblioteca Tensorflow em um ambiente Jupyter
- * utilizando linguagem Python.
- * 
- * Este modelo foi convertido em um modelo Tensorflow Lite e então importado neste
- * projeto.
- * 
  *********************************************************************************
  */
 
@@ -91,11 +79,11 @@ void test_temperature_model(TemperatureClassifier* model) {
     if ((temperature < 20 && prediction == 0) || (temperature >= 20 && temperature <= 25 && prediction == 1) || (temperature > 25 && prediction == 2)) {
       correct_predictions++;
     } else {
-      ESP_LOGE("Teste", "Erro na predição da temperatura %f", temperature);
+      ESP_LOGE("Teste", "Erro na predicao da temperatura %f", temperature);
     }
     temperature += 0.5;
   }
-  printf("- Tempo médio de execução: %f us\n", time_avg/((30.0-10.0)/0.5+1));
+  printf("- Tempo medio de execucao: %f us\n", time_avg/((30.0-10.0)/0.5+1));
   printf("- Porcentagem de acerto: %f %%\n", (float)correct_predictions/((30.0-10.0)/0.5+1)*100);
 }
 
@@ -127,7 +115,7 @@ extern "C" void app_main(void) {
 
       // Realiza a predição da temperatura
       init_time = esp_timer_get_time();
-      int prediction = temp_model->predict(&temperature);
+      prediction = temp_model->predict(&temperature);
       total_time = esp_timer_get_time() - init_time;
 
       printf("-> Temperatura: %f, Classificação: ", temperature);
