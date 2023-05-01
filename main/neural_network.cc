@@ -1,36 +1,25 @@
 #include "neural_network.h"
 
 TemperatureClassifier::TemperatureClassifier() {
-    // Map the model into a usable data structure. This doesn't involve any
-    // copying or parsing, it's a very lightweight operation.
+    // Carrega o modelo na memória (model.h)
     model_ = tflite::GetModel(__model_temp_model_tflite);
     if (model_->version() != TFLITE_SCHEMA_VERSION) {
-        printf("Model provided is schema version %d not equal to supported "
-               "version %d.\n", model_->version(), TFLITE_SCHEMA_VERSION);
+        printf("Versão do modelo (%d) não é igual à versão suportada \
+                (%d).\n", model_->version(), TFLITE_SCHEMA_VERSION);
         return;
     }
 
-    // Operações necessárias no modelo
-    tflite::MicroMutableOpResolver<6>*resolver = new tflite::MicroMutableOpResolver<6>();
+    /*
+    Operações necessárias no modelo. 
+    Para utilizar todas as operações disponíveis:
+    static tflite::AllOpsResolver resolver;
+    */
+    tflite::MicroMutableOpResolver<2>*resolver = new tflite::MicroMutableOpResolver<2>();
 
     resolver->AddFullyConnected();
-    resolver->AddReshape();
-    resolver->AddSoftmax();
     resolver->AddLogistic();
-    resolver->AddMul();
-    resolver->AddAdd();
-    
-    /*  
-    outras operações:  
-        resolver->AddQuantize();
-        resolver->AddDequantize();
-    
-    para coletar todas as operações disponíveis:
-        static tflite::AllOpsResolver resolver;
-    */
-    
-
-    // Build an interpreter to run the model
+     
+    // Define o interpretador para execução do modelo
     interpreter_ = new tflite::MicroInterpreter(
         model_, 
         *resolver, 
@@ -38,17 +27,18 @@ TemperatureClassifier::TemperatureClassifier() {
         TENSOR_ARENA_SIZE
     );
 
-    // Allocate memory from the tensor_arena for the model's tensors.
+    // Alocam memória para os tensores do modelo
     TfLiteStatus allocate_status = interpreter_->AllocateTensors();
     if (allocate_status != kTfLiteOk) {
-        MicroPrintf("AllocateTensors() failed\n");
+        MicroPrintf("AllocateTensors() falhou\n");
         return;
     }
 
+    // Computa o tamanho da memória utilizada pelo modelo
     size_t used_bytes = interpreter_->arena_used_bytes();
-    printf("Tensorflowlite used bytes %d\n", used_bytes);
+    printf("Tensorflowlite - Total de memória usada: %d bytes\n", used_bytes);
 
-    // Obtain pointers to the model's input and output tensors.
+    // Ponteiros para os tensores de entrada e saída
     input_ = interpreter_->input(0);
     output_ = interpreter_->output(0);
 }
@@ -56,21 +46,20 @@ TemperatureClassifier::TemperatureClassifier() {
 
 
 int TemperatureClassifier::predict(float* temperature){
-    // Normalização
-    
+    // Normalização através da equação Z-Score
     float norm_temp = (*temperature - norm_mean_) / norm_std_;
 
-    // Input
+    // Transfere o valor normalizado para o tensor de entrada
     input_->data.f[0] = norm_temp;
 
-    // Run inference
+    // Executa a inferência do modelo
     TfLiteStatus invoke_status = interpreter_->Invoke();
     if (invoke_status != kTfLiteOk) {
-        printf("Invoke failed\n");
+        printf("Invoke() falhou.\n");
         return -1;
     }
 
-    // Output
+    // Iteração pelos valores de saída para encontrar o maior valor
     int max_index = 0;
     float value = output_->data.f[0];
     for (int i = 1; i < number_of_classes_; i++) {
@@ -79,5 +68,6 @@ int TemperatureClassifier::predict(float* temperature){
         }
     }
 
+    // Retorna o maior index, que no caso é a própria classe
     return max_index;
 }
